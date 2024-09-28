@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Netflix Movie Finder - Movie Gallery</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background-color: #221f1f;
+      }
+
+      #mainheader {
+        background-color: #333;
+        color: #fff;
+        padding: 1rem;
+        text-align: center;
+      }
+
+      #mainheader ul {
+        list-style-type: none;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1rem;
+      }
+
+      #mainheader ul li {
+        margin: 0 1rem;
+      }
+
+      #mainheader ul li a {
+        color: #fff;
+        text-decoration: none;
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
+
+      #genreFilter {
+        padding: 0.5rem;
+        font-size: 1rem;
+        width: 200px;
+      }
+
+      main {
+        padding: 2rem;
+      }
+
+      #movie-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        justify-content: center;
+      }
+
+      .movie-card {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+      }
+
+      .movie-card:hover {
+        transform: scale(1.05);
+      }
+
+      .movie-card img {
+        width: 150px;
+        height: 225px;
+        object-fit: cover;
+        margin-bottom: 0.5rem;
+      }
+
+      .movie-card h3 {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        text-align: center;
+      }
+
+      .favorite-btn {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        border-radius: 3px;
+      }
+
+      .favorite-btn:hover {
+        background-color: #0056b3;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+
+      .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 600px;
+      }
+
+      .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .close:hover,
+      .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      footer {
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        padding: 1rem;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+      }
+
+      @media (max-width: 768px) {
+        #movie-grid {
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header id="mainheader">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="gallery.html">Movie Gallery</a></li>
+      </ul>
+      <select id="genreFilter">
+        <option value="all">All Genres</option>
+      </select>
+    </header>
+    <main>
+      <div id="movie-grid"></div>
+    </main>
+    <div id="movieModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <div id="modalContent"></div>
+      </div>
+    </div>
+    <footer>
+      <p>&copy; 2024 Netflix Movie Finder. Todos los derechos reservados.</p>
+    </footer>
+    <script>
+      const movieGrid = document.getElementById("movie-grid");
+      const genreFilter = document.getElementById("genreFilter");
+      const modal = document.getElementById("movieModal");
+      const modalContent = document.getElementById("modalContent");
+      const closeBtn = document.getElementsByClassName("close")[0];
+
+      const movies = [
+        {
+          title: "Action Movie",
+          description: "Exciting action movie with lots of explosions!",
+          genre: "Action",
+          image:
+            "https://media.themoviedb.org/t/p/w300_and_h450_bestv2/qVKirshrsLqe3rAqsvhXxOtdR6K.jpg",
+        },
+        {
+          title: "Comedy Movie",
+          description: "A hilarious comedy that will make you laugh out loud.",
+          genre: "Comedy",
+          image:
+            "https://media.themoviedb.org/t/p/w300_and_h450_bestv2/8gLIkur9FBWxpK3xKjNeX3sOZwP.jpg",
+        },
+        {
+          title: "Drama Movie",
+          description: "A deep and moving drama about life and relationships.",
+          genre: "Drama",
+          image:
+            "https://media.themoviedb.org/t/p/w300_and_h450_bestv2/bGVdZ8nc99GIwCDxmXpGP0oCSzT.jpg",
+        },
+        {
+          title: "Sci-Fi Movie",
+          description: "An out-of-this-world adventure in space.",
+          genre: "Sci-Fi",
+          image:
+            "https://media.themoviedb.org/t/p/w300_and_h450_bestv2/5MKpjuiCTk8nYnsUf5QegiPKEDh.jpg",
+        },
+        {
+          title: "Naruto",
+          description: "A spine-chilling tale that will keep you up at night.",
+          genre: "naruto",
+          image:
+            "https://media.themoviedb.org/t/p/w300_and_h450_bestv2/bAQ8O5Uw6FedtlCbJTutenzPVKd.jpg",
+        },
+      ];
+
+      function displayMovies(filter = "all") {
+        movieGrid.innerHTML = "";
+        movies.forEach((movie) => {
+          if (filter === "all" || movie.genre === filter) {
+            const movieCard = document.createElement("div");
+            movieCard.classList.add("movie-card");
+            movieCard.innerHTML = `
+              <img src="${movie.image}" alt="${movie.title}">
+              <h3>${movie.title}</h3>
+              <button class="favorite-btn">Favorite</button>
+            `;
+            movieCard
+              .querySelector(".favorite-btn")
+              .addEventListener("click", toggleFavorite);
+            movieCard.addEventListener("click", () => showMovieDetails(movie));
+            movieGrid.appendChild(movieCard);
+          }
+        });
+      }
+
+      function toggleFavorite(e) {
+        e.stopPropagation();
+        const button = e.target;
+        button.textContent =
+          button.textContent === "Favorite" ? "Favorited" : "Favorite";
+        button.style.backgroundColor =
+          button.textContent === "Favorited" ? "#dc3545" : "#007bff";
+      }
+
+      function showMovieDetails(movie) {
+        modalContent.innerHTML = `
+          <h2>${movie.title}</h2>
+          <img src="${movie.image}" alt="${movie.title}" style="width: 200px; height: 300px; object-fit: cover;">
+          <p>${movie.description}</p>
+          <p>Genre: ${movie.genre}</p>
+        `;
+        modal.style.display = "block";
+      }
+
+      closeBtn.onclick = function () {
+        modal.style.display = "none";
+      };
+
+      window.onclick = function (event) {
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      };
+
+      function populateGenreFilter() {
+        const genres = [...new Set(movies.map((movie) => movie.genre))];
+        genres.forEach((genre) => {
+          const option = document.createElement("option");
+          option.value = genre;
+          option.textContent = genre;
+          genreFilter.appendChild(option);
+        });
+      }
+
+      genreFilter.addEventListener("change", (e) => {
+        displayMovies(e.target.value);
+      });
+
+      populateGenreFilter();
+      displayMovies();
+    </script>
+  </body>
+</html>
