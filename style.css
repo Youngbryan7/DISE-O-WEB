@@ -12,7 +12,7 @@ body {
 
 #mainheader {
   background-color: #000;
-  color: #fff;
+  color: #fffafa;
   padding: 1rem;
   text-align: center;
 }
@@ -55,7 +55,7 @@ main {
 }
 
 .movie-card {
-  border: 1px solid #ddd;
+  border: 1px solid #000000;
   border-radius: 5px;
   overflow: hidden;
   display: flex;
@@ -80,7 +80,7 @@ main {
 
 .favorite-btn {
   background-color: #007bff;
-  color: white;
+  color: rgb(250, 250, 250);
   border: none;
   padding: 0.5rem;
   cursor: pointer;
@@ -88,7 +88,7 @@ main {
 }
 
 .favorite-btn.favorited {
-  background-color: #dc3545;
+  background-color: #ffeef0;
 }
 
 .modal {
